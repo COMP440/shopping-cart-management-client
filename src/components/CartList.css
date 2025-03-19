@@ -72,3 +72,34 @@
 .cart-item-button:hover {
   background-color: #0056b3;
 }
+
+.cart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+.total-amount {
+  margin-left: 35%;
+  font-size: 19px;
+  font-weight: bold;
+  color: #333;
+}
+
+.order-button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.order-button:hover {
+  background-color: #218838;
+}

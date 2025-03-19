@@ -30,7 +30,7 @@ export default function CartList() {
 
   useEffect(() => {
     const total = cartItems
-      .reduce((acc, item) => acc + parseFloat(String(item.total_price)), 0)
+      .reduce((acc, item) => acc + item.price * item.quantity, 0)
       .toFixed(2);
     setTotalAmount(parseFloat(total));
   }, [cartItems]);
@@ -66,7 +66,11 @@ export default function CartList() {
         setCartItems(
           cartItems.map((cartItem) =>
             cartItem.cart_item_id === item.cart_item_id
-              ? { ...cartItem, quantity: cartItem.quantity + 1 }
+              ? {
+                  ...cartItem,
+                  quantity: cartItem.quantity + 1,
+                  total_price: (cartItem.quantity + 1) * cartItem.price,
+                }
               : cartItem
           )
         );
@@ -89,7 +93,11 @@ export default function CartList() {
           setCartItems(
             cartItems.map((cartItem) =>
               cartItem.cart_item_id === item.cart_item_id
-                ? { ...cartItem, quantity: cartItem.quantity - 1 }
+                ? {
+                    ...cartItem,
+                    quantity: cartItem.quantity - 1,
+                    total_price: (cartItem.quantity - 1) * cartItem.price,
+                  }
                 : cartItem
             )
           );
@@ -98,12 +106,33 @@ export default function CartList() {
     }
   };
 
+  const placeOrder = () => {
+    fetch("http://localhost:8000/cart/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: 1,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message);
+        setCartItems([]);
+        alert("Order placed successfully!");
+      })
+      .catch((error) => console.error("Error placing order:", error));
+  };
+
   return (
     <div className="cart-list">
       <div className="cart-header">
         <h2>Cart Items</h2>
         <span className="total-amount">Total: {totalAmount}$</span>
-        {/* <button className="order-button">Place your order</button> */}
+        <button className="order-button" onClick={() => placeOrder()}>
+          Place your order
+        </button>
       </div>
       <ul>
         {cartItems.map((item) => (
@@ -116,7 +145,7 @@ export default function CartList() {
             <div className="item-details">
               <span className="item-name">{item.name}</span>
               <span className="item-total-price">
-                Total: {item.total_price}$
+                Total: {(item.price * item.quantity).toFixed(2)}$
               </span>
             </div>
 
