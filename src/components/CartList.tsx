@@ -12,6 +12,7 @@ interface CartItem {
 
 export default function CartList() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
     fetch("http://localhost:8000/cart?user_id=1", {
@@ -22,8 +23,17 @@ export default function CartList() {
     })
       .then((response) => response.json())
       .then((data) => setCartItems(data))
-      .catch((error) => console.error("Error fetching cart items:", error));
+      .catch((error) =>
+        console.error("Error fetching updated cart items:", error)
+      );
   }, []);
+
+  useEffect(() => {
+    const total = cartItems
+      .reduce((acc, item) => acc + parseFloat(String(item.total_price)), 0)
+      .toFixed(2);
+    setTotalAmount(parseFloat(total));
+  }, [cartItems]);
 
   const removeFromCart = (cartItemId: number) => {
     fetch(`http://localhost:8000/cart/${cartItemId}`, {
@@ -42,9 +52,59 @@ export default function CartList() {
       .catch((error) => console.error("Error removing cart item:", error));
   };
 
+  const incrementQuantity = (item: CartItem) => {
+    fetch(`http://localhost:8000/cart/${item.cart_item_id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ quantity: item.quantity + 1 }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message);
+        setCartItems(
+          cartItems.map((cartItem) =>
+            cartItem.cart_item_id === item.cart_item_id
+              ? { ...cartItem, quantity: cartItem.quantity + 1 }
+              : cartItem
+          )
+        );
+      })
+      .catch((error) => console.error("Error updating cart item:", error));
+  };
+
+  const decrementQuantity = (item: CartItem) => {
+    if (item.quantity > 1) {
+      fetch(`http://localhost:8000/cart/${item.cart_item_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ quantity: item.quantity - 1 }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.message);
+          setCartItems(
+            cartItems.map((cartItem) =>
+              cartItem.cart_item_id === item.cart_item_id
+                ? { ...cartItem, quantity: cartItem.quantity - 1 }
+                : cartItem
+            )
+          );
+        })
+        .catch((error) => console.error("Error updating cart item:", error));
+    }
+  };
+
   return (
     <div className="cart-list">
-      <h2>Cart Items</h2>
+      <div className="cart-header">
+        <h2>Cart Items</h2>
+        <span className="total-amount">Total: {totalAmount}$</span>
+        {/* <button className="order-button">Place your order</button> */}
+      </div>
       <ul>
         {cartItems.map((item) => (
           <li key={item.cart_item_id} className="cart-item">
@@ -55,12 +115,17 @@ export default function CartList() {
             />
             <div className="item-details">
               <span className="item-name">{item.name}</span>
-              <span className="item-quantity">Quantity: {item.quantity}</span>
               <span className="item-total-price">
                 Total: {item.total_price}$
               </span>
             </div>
-            <button className="cart-item-button">Update</button>
+
+            <div className="item-quantity-container">
+              <button onClick={() => decrementQuantity(item)}>-</button>
+              <span className="item-quantity">{item.quantity}</span>
+              <button onClick={() => incrementQuantity(item)}>+</button>
+            </div>
+
             <button
               className="cart-item-button"
               onClick={() => removeFromCart(item.cart_item_id)}

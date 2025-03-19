@@ -5,6 +5,7 @@ interface Product {
   id: number;
   name: string;
   price: number;
+  inventory: number;
 }
 
 function ProductList() {
@@ -51,6 +52,10 @@ function ProductList() {
             <div className="product-details">
               <span className="product-name">{product.name}</span>
               <span className="product-price">{product.price}$</span>
+              <span className="product-inventory">
+                <span className="product-inventory-label">Inventory:</span>
+                {product.inventory}
+              </span>
             </div>
             <button
               onClick={() => addToCart(product)}

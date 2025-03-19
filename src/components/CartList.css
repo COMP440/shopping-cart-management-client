@@ -19,7 +19,34 @@
   margin-right: 20px;
 }
 
-.item-quantity,
+.item-quantity-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-quantity-container button {
+  width: 30px;
+  height: 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s ease;
+}
+
+.item-quantity-container button:hover {
+  background-color: #0056b3;
+}
+
+.item-quantity {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 10px;
+}
+
 .item-total-price {
   color: #888;
   margin-right: 20px;
