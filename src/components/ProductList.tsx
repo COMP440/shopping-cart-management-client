@@ -11,7 +11,23 @@ function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
 
   const addToCart = (product: Product) => {
-    console.log(`${product.name} has been added to the cart.`);
+    fetch("http://localhost:8000/cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: 1,
+        product_id: product.id,
+        quantity: 1,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message);
+        alert(`${product.name} has been added to the cart.`);
+      })
+      .catch((error) => console.error("Error adding to cart:", error));
   };
 
   useEffect(() => {
